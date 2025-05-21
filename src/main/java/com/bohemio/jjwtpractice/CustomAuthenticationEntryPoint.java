@@ -1,0 +1,43 @@
+package com.bohemio.jjwtpractice;
+
+import com.fasterxml.jackson.databind.ObjectMapper; // JSON 처리를 위해 Jackson 라이브러리 사용
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component // Spring Bean으로 등록!
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationEntryPoint.class);
+    private final ObjectMapper objectMapper = new ObjectMapper(); // JSON 변환기
+
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException) throws IOException, ServletException {
+
+        logger.warn("인증되지 않은 접근 시도: {}", request.getRequestURI(), authException);
+
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE); // 응답 타입을 JSON으로!
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);    // HTTP 상태 코드는 401!
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+        body.put("error", "Unauthorized");
+        body.put("message", "인증이 필요합니다: " + authException.getMessage()); // 예외 메시지 포함
+        body.put("path", request.getRequestURI());
+
+        // ObjectMapper를 사용해서 Map을 JSON 문자열로 변환하고 응답 본문에 쓰기
+        objectMapper.writeValue(response.getOutputStream(), body);
+    }
+}
