@@ -8,6 +8,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -47,6 +52,29 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // 허용할 출처 (프론트엔드 개발 서버, 실제 배포 도메인 등)
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://naver.com"));
+        // 허용할 HTTP 메소드
+        configuration.setAllowedMethods( List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        // 허용할 HTTP 헤더 (모든 헤더를 허용하려면 "*")
+        configuration.setAllowedHeaders(List.of("*"));
+        // 브라우저에게 노출할 응답 헤더 (예: 커스텀 헤더, JWT 토큰 헤더 등)
+        // configuration.setExposedHeaders(List.of("X-Custom-Header", "Authorization-Refresh"));
+        // 자격 증명(쿠키, 인증 헤더 등)을 허용할지 여부
+        configuration.setAllowCredentials(true); // true로 설정하면 allowedOrigins에 "*" 사용 불가
+        // 예비 요청(Preflight) 결과 캐시 시간 (초 단위)
+        configuration.setMaxAge(3600L); // 1시간
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // 모든 경로 ("/**")에 대해 위 설정 적용
+        return source;
+    }
+
 }
 
 
