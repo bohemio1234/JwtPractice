@@ -15,11 +15,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component // Spring Bean으로 등록!
+@Component 
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationEntryPoint.class);
-    private final ObjectMapper objectMapper = new ObjectMapper(); // JSON 변환기
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void commence(HttpServletRequest request,
@@ -28,16 +28,16 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         logger.warn("인증되지 않은 접근 시도: {}", request.getRequestURI(), authException);
 
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE); // 응답 타입을 JSON으로!
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);    // HTTP 상태 코드는 401!
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         Map<String, Object> body = new HashMap<>();
         body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
         body.put("error", "Unauthorized");
-        body.put("message", "인증이 필요합니다: " + authException.getMessage()); // 예외 메시지 포함
+        body.put("message", "인증이 필요합니다: " + authException.getMessage());
         body.put("path", request.getRequestURI());
 
-        // ObjectMapper를 사용해서 Map을 JSON 문자열로 변환하고 응답 본문에 쓰기
+
         objectMapper.writeValue(response.getOutputStream(), body);
     }
 }
