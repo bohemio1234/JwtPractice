@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component 
+@Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationEntryPoint.class);
